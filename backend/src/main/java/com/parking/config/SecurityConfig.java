@@ -69,7 +69,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/parking/**", "/api/billing/**").hasAnyRole("ADMIN", "OPERATOR")
                 .requestMatchers(HttpMethod.GET, "/api/reservations/floor-spots").authenticated()
                 .requestMatchers("/api/reservations/**").hasRole("CUSTOMER")
-                .anyRequest().authenticated()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().permitAll()
             )
             .headers(h -> h.frameOptions(f -> f.disable()))   // for H2 console
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

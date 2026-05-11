@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: parking
+      POSTGRES_PASSWORD: parking
+      POSTGRES_DB: parking
+    ports: ["5432:5432"]
+    volumes: [db-data:/var/lib/postgresql/data]
+
+  backend:
+    build: ./backend
+    depends_on: [db]
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JDBC_DATABASE_URL: jdbc:postgresql://db:5432/parking
+      JDBC_DATABASE_USERNAME: parking
+      JDBC_DATABASE_PASSWORD: parking
+      JWT_SECRET: dev-only-secret-replace-in-prod-this-must-be-256-bits-long-xxxxxxxx
+      CORS_ORIGINS: http://localhost:5173,http://localhost
+    ports: ["8080:8080"]
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE: http://localhost:8080
+    depends_on: [backend]
+    ports: ["5173:80"]
+
+volumes:
+  db-data:

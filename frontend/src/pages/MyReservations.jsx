@@ -45,7 +45,7 @@ export default function MyReservations() {
 
   function isUrgent(expiresAt) {
     const diff = new Date(expiresAt).getTime() - now;
-    return diff > 0 && diff < 120000; // < 2 minutes
+    return diff > 0 && diff < 120000;
   }
 
   return (
@@ -56,10 +56,10 @@ export default function MyReservations() {
 
       {reservations.length === 0 && (
         <div className="card" style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '.75rem' }}>🅿</div>
+          <div style={{ fontSize: '2.5rem', marginBottom: '.75rem' }}>{'\u{1F17F}'}</div>
           <h3 style={{ marginBottom: '.5rem' }}>No Active Reservations</h3>
           <p style={{ color: 'var(--gray-500)', fontSize: '.9rem' }}>
-            Go to Available Slots to reserve a parking spot.
+            Go to a city and mall to reserve a parking spot.
           </p>
         </div>
       )}
@@ -70,6 +70,14 @@ export default function MyReservations() {
 
         return (
           <div className="card" key={r.id} style={{ marginBottom: '1rem' }}>
+            {r.ticketNo && (
+              <div className="ticket-card" style={{ marginBottom: '1rem' }}>
+                <div className="ticket-row">
+                  <span>Ticket</span>
+                  <strong>{r.ticketNo}</strong>
+                </div>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <h3 style={{ marginBottom: '.5rem' }}>Spot {r.spotCode}</h3>

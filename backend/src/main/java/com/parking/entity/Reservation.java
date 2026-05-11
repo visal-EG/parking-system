@@ -32,4 +32,7 @@ public class Reservation {
 
     @Column(name = "cancelled_at")
     private Instant cancelledAt;
+
+    @Column(name = "ticket_no", unique = true, length = 64)
+    private String ticketNo;
 }

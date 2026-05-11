@@ -11,9 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +28,8 @@ public class ReservationService {
     private final ParkingSpotRepository spotRepo;
     private final FloorRepository floorRepo;
     private final UserRepository userRepo;
+
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     @Transactional
     public ReservationResponse reserve(Long userId, Long spotId) {
@@ -54,10 +59,11 @@ public class ReservationService {
                 .status(ReservationStatus.ACTIVE)
                 .createdAt(now)
                 .expiresAt(now.plusSeconds(600)) // 10 minutes
+                .ticketNo(generateTicketNo())
                 .build();
         reservationRepo.save(r);
 
-        log.info("Reservation {} created by user {} for spot {}", r.getId(), userId, spot.getCode());
+        log.info("Reservation {} (ticket {}) created by user {} for spot {}", r.getId(), r.getTicketNo(), userId, spot.getCode());
 
         return toResponse(r);
     }
@@ -90,11 +96,20 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<FloorSpotsResponse> getFloorSpots() {
+        return getFloorSpots(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FloorSpotsResponse> getFloorSpots(Long lotId) {
         Set<Long> reservedSpotIds = reservationRepo.findActiveReservedSpotIds()
                 .stream().collect(Collectors.toSet());
 
+        List<Floor> floors = (lotId != null)
+                ? floorRepo.findByLot_IdOrderByLevelDesc(lotId)
+                : floorRepo.findAllByOrderByLevelDesc();
+
         List<FloorSpotsResponse> result = new ArrayList<>();
-        for (Floor f : floorRepo.findAllByOrderByLevelDesc()) {
+        for (Floor f : floors) {
             List<ParkingSpot> spots = spotRepo.findByFloor_IdOrderByCodeAsc(f.getId());
             List<SpotDetail> details = spots.stream()
                     .map(s -> new SpotDetail(
@@ -108,6 +123,27 @@ public class ReservationService {
             result.add(new FloorSpotsResponse(f.getCode(), f.getLevel(), details));
         }
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    public TrackResponse trackByTicketNo(String ticketNo) {
+        Reservation r = reservationRepo.findByTicketNo(ticketNo)
+                .orElseThrow(() -> new NotFoundException("Reservation not found for ticket: " + ticketNo));
+
+        ParkingSpot spot = r.getSpot();
+        Floor floor = spot.getFloor();
+        ParkingLot lot = floor.getLot();
+
+        return new TrackResponse(
+                r.getTicketNo(),
+                spot.getCode(),
+                floor.getCode(),
+                lot.getName(),
+                lot.getCity(),
+                r.getStatus().name(),
+                r.getCreatedAt(),
+                r.getExpiresAt()
+        );
     }
 
     @Transactional
@@ -142,7 +178,14 @@ public class ReservationService {
                 spot.getType(),
                 r.getStatus().name(),
                 r.getCreatedAt(),
-                r.getExpiresAt()
+                r.getExpiresAt(),
+                r.getTicketNo()
         );
+    }
+
+    private String generateTicketNo() {
+        String date = LocalDate.now().format(DATE_FMT);
+        String random = String.format("%06d", ThreadLocalRandom.current().nextInt(1_000_000));
+        return "TKT-" + date + "-" + random;
     }
 }

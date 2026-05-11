@@ -30,4 +30,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     @Query("SELECT r.spot.id FROM Reservation r WHERE r.status = 'ACTIVE'")
     List<Long> findActiveReservedSpotIds();
+
+    Optional<Reservation> findByTicketNo(String ticketNo);
 }

@@ -1,4 +1,4 @@
-# Mall Parking System
+# Vikesh's Parking System
 
 Monolithic Spring Boot backend + React (Vite) frontend.
 Auth (JWT), role-based authorization, parking entry/exit, billing, reporting.

@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { api } from '../api';
 
 export default function CustomerSlots() {
+  const { mallId } = useParams();
   const [floors, setFloors] = useState([]);
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
+  const [ticketNo, setTicketNo] = useState('');
   const [reserving, setReserving] = useState(false);
 
   async function load() {
     try {
-      const { data } = await api.get('/api/reservations/floor-spots');
+      const url = mallId
+        ? `/api/reservations/floor-spots?lotId=${mallId}`
+        : '/api/reservations/floor-spots';
+      const { data } = await api.get(url);
       setFloors(data);
     } catch (e) {
       setErr(e.response?.data?.message || 'Failed to load');
@@ -20,16 +26,18 @@ export default function CustomerSlots() {
     load();
     const t = setInterval(load, 10_000);
     return () => clearInterval(t);
-  }, []);
+  }, [mallId]);
 
   async function handleReserve(spotId) {
     if (reserving) return;
     setReserving(true);
     setErr('');
     setMsg('');
+    setTicketNo('');
     try {
       const { data } = await api.post('/api/reservations', { spotId });
       setMsg(`Spot ${data.spotCode} reserved! Expires at ${new Date(data.expiresAt).toLocaleTimeString()}`);
+      setTicketNo(data.ticketNo);
       load();
     } catch (e) {
       setErr(e.response?.data?.message || 'Failed to reserve');
@@ -40,8 +48,15 @@ export default function CustomerSlots() {
 
   return (
     <>
-      <h1>Available Parking Slots</h1>
-      <p style={{ color: 'var(--gray-500)', marginBottom: '.5rem', marginTop: '-0.75rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginBottom: '.5rem' }}>
+        {mallId && (
+          <Link to={`/customer`} style={{ color: 'var(--gray-500)', textDecoration: 'none', fontSize: '.9rem' }}>
+            &larr; Back
+          </Link>
+        )}
+        <h1 style={{ margin: 0 }}>Available Parking Slots</h1>
+      </div>
+      <p style={{ color: 'var(--gray-500)', marginBottom: '.5rem' }}>
         Click a green spot to reserve it for 10 minutes
       </p>
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', fontSize: '.82rem' }}>
@@ -50,7 +65,20 @@ export default function CustomerSlots() {
         <span><span style={{ display: 'inline-block', width: 14, height: 14, background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 3, verticalAlign: 'middle', marginRight: 4 }} /> Reserved</span>
       </div>
 
-      {msg && <div className="success">{msg}</div>}
+      {ticketNo && (
+        <div className="ticket-card" style={{ marginBottom: '1rem' }}>
+          <h3>Booking Confirmed!</h3>
+          <div className="ticket-row">
+            <span>Ticket Number</span>
+            <strong>{ticketNo}</strong>
+          </div>
+          <p style={{ fontSize: '.8rem', opacity: .8, marginTop: '.5rem' }}>
+            Save this ticket number to track your reservation
+          </p>
+        </div>
+      )}
+
+      {msg && !ticketNo && <div className="success">{msg}</div>}
       {err && <div className="error">{err}</div>}
 
       {floors.length === 0 && !err && <div className="spinner" />}
@@ -63,7 +91,6 @@ export default function CustomerSlots() {
           const pct = totalCap > 0 ? (totalOcc / totalCap) * 100 : 0;
           const fillClass = pct >= 90 ? 'high' : pct >= 60 ? 'medium' : 'low';
 
-          // Group spots by type
           const byType = {};
           floor.spots.forEach(s => {
             if (!byType[s.type]) byType[s.type] = [];
@@ -91,7 +118,7 @@ export default function CustomerSlots() {
                       display: 'flex', justifyContent: 'space-between',
                       fontSize: '.85rem', marginBottom: '.35rem'
                     }}>
-                      <span>{type === 'CAR' ? '🚗' : '🏍'} {type}</span>
+                      <span>{type === 'CAR' ? '\u{1F697}' : '\u{1F3CD}'} {type}</span>
                       <span style={{ color: free === 0 ? 'var(--danger)' : 'var(--success)' }}>
                         {free === 0 ? 'FULL' : `${free} free`}
                       </span>

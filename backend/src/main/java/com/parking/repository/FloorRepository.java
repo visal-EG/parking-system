@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface FloorRepository extends JpaRepository<Floor, Long> {
     List<Floor> findAllByOrderByLevelDesc();
+    List<Floor> findByLot_IdOrderByLevelDesc(Long lotId);
 }

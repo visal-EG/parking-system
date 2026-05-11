@@ -28,7 +28,7 @@ export default function Login() {
       <div className="auth-card">
         <div className="brand">
           <span className="icon">🅿</span>
-          <h2>City Mall Parking</h2>
+          <h2>Vikesh's Parking System</h2>
           <p>Sign in to your account</p>
         </div>
 

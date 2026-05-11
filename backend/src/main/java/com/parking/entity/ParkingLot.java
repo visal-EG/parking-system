@@ -14,4 +14,7 @@ public class ParkingLot {
     private String name;
 
     private String address;
+
+    @Column(nullable = false, length = 64)
+    private String city;
 }

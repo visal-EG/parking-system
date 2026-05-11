@@ -39,7 +39,12 @@ public class ReservationController {
     }
 
     @GetMapping("/floor-spots")
-    public List<FloorSpotsResponse> floorSpots() {
-        return reservationService.getFloorSpots();
+    public List<FloorSpotsResponse> floorSpots(@RequestParam(required = false) Long lotId) {
+        return reservationService.getFloorSpots(lotId);
+    }
+
+    @GetMapping("/track/{ticketNo}")
+    public TrackResponse track(@PathVariable String ticketNo) {
+        return reservationService.trackByTicketNo(ticketNo);
     }
 }

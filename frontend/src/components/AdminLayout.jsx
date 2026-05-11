@@ -20,8 +20,8 @@ export default function AdminLayout() {
 
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="brand">
-          <h2>🅿 City Mall</h2>
-          <small>Parking Management</small>
+          <h2>🅿 Vikesh's Parking</h2>
+          <small>Parking System</small>
         </div>
         <nav className="sidebar-nav">
           <NavLink to="/admin-panel" end onClick={() => setSidebarOpen(false)}>
@@ -59,9 +59,12 @@ export default function AdminLayout() {
           <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
             ☰
           </button>
-          <span style={{ fontSize: '.85rem', color: 'var(--gray-500)' }}>
-            {user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}
-          </span>
+          <div className="admin-topbar-right">
+            <span style={{ fontSize: '.85rem', color: 'var(--gray-500)' }}>
+              {user?.role === 'ADMIN' ? 'Administrator' : 'Operator'}
+            </span>
+            <img src="/Vikesh_Pic.jpg" alt="Admin" className="admin-avatar" />
+          </div>
         </header>
         <main className="admin-main">
           <Outlet />

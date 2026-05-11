@@ -13,12 +13,12 @@ export default function CustomerLayout() {
   return (
     <div className="customer-layout">
       <header className="customer-topnav">
-        <div className="brand">🅿 City Mall Parking</div>
+        <div className="brand">{'\u{1F17F}'} Vikesh's Parking System</div>
         <div className="nav-links">
           <NavLink to="/customer" end>Home</NavLink>
-          <NavLink to="/customer/slots">Available Slots</NavLink>
           <NavLink to="/customer/my-reservations">My Reservations</NavLink>
-          <NavLink to="/customer/check-ticket">Check Ticket</NavLink>
+          <NavLink to="/customer/track-ticket">Track My Ticket</NavLink>
+          <NavLink to="/customer/nearby-parking">Nearby Parking</NavLink>
           <NavLink to="/customer/profile">Profile</NavLink>
         </div>
         <div className="nav-right">

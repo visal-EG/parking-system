@@ -17,10 +17,22 @@ public class ReservationDtos {
             SpotType spotType,
             String status,
             Instant createdAt,
-            Instant expiresAt
+            Instant expiresAt,
+            String ticketNo
     ) {}
 
     public record SpotDetail(Long id, String code, String type, boolean occupied, boolean reserved) {}
 
     public record FloorSpotsResponse(String floorCode, int level, List<SpotDetail> spots) {}
+
+    public record TrackResponse(
+            String ticketNo,
+            String spotCode,
+            String floorCode,
+            String mallName,
+            String city,
+            String status,
+            Instant createdAt,
+            Instant expiresAt
+    ) {}
 }

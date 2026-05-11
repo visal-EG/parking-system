@@ -5,7 +5,11 @@
       "Bash(./mvnw.cmd spring-boot:run:*)",
       "Bash(./mvnw compile:*)",
       "Bash(ls:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
